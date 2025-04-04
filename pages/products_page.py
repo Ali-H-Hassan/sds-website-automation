@@ -8,8 +8,9 @@ class ProductsPage(BasePage):
     BOOK_A_DEMO_BUTTON = ".pwr-sec-cta__cta--vertical.pwr-cta--custom-03 a.pwr-cta_button"
     DOWNLOAD_PDF_BUTTON = ".pwr-sec-cta__cta--vertical.pwr-cta--custom-01 a.pwr-cta_button"
     
-    # Selectors for the "Wish to Know More?" form
+    # Selectors for the "Wish to Know More?" form (specific to LANDVAL product page)
     WISH_TO_KNOW_MORE_TITLE = "#wish-to-know-more"
+
     WISH_FORM_FIRST_NAME = "input#firstname-25c7bb2a-eae6-4dd1-b936-e990b011cef5_13"
     WISH_FORM_LAST_NAME = "input#lastname-25c7bb2a-eae6-4dd1-b936-e990b011cef5_13"
     WISH_FORM_EMAIL = "input#email-25c7bb2a-eae6-4dd1-b936-e990b011cef5_13"
