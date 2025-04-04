@@ -2,18 +2,18 @@ from pages.base_page import BasePage
 
 class ContactForms(BasePage):
     # Selector for the Get in Touch form (using its unique form id)
-    GET_IN_TOUCH_FORM = "form#hsForm_3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_9459"
+    GET_IN_TOUCH_FORM = "form#hsForm_3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_4505"
     
     # Individual field selectors (using their unique ids)
-    FIRST_NAME = "#firstname-3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_9459"
-    LAST_NAME = "#lastname-3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_9459"
-    PHONE = "#phone-3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_9459"
-    EMAIL = "#email-3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_9459"
-    COMPANY = "#company-3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_9459"
-    MESSAGE = "#message-3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_9459"
+    FIRST_NAME = "#firstname-3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_4505"
+    LAST_NAME = "#lastname-3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_4505"
+    PHONE = "#phone-3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_4505"
+    EMAIL = "#email-3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_4505"
+    COMPANY = "#company-3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_4505"
+    MESSAGE = "#message-3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_4505"
     
     # Submit button for the form
-    SUBMIT_BUTTON = "form#hsForm_3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_9459 input[type='submit']"
+    SUBMIT_BUTTON = "form#hsForm_3ff8d7d3-ea77-4fb1-9a68-500ca40acec7_4505 input[type='submit']"
     
     # For the Enquiry Type checkboxes, we'll target them by name and value.
     # (e.g., input[name="enquiry_type"][value="I'm interested in SDS software"])
@@ -33,7 +33,6 @@ class ContactForms(BasePage):
     def select_enquiry_type(self, value: str):
         """
         Selects an enquiry type checkbox based on its value.
-        
         Example value: "I'm interested in SDS software"
         """
         selector = f"input[name='enquiry_type'][value=\"{value}\"]"
