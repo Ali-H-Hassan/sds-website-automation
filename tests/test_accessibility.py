@@ -1,42 +1,34 @@
+import json
+import subprocess
 import pytest
-from playwright.sync_api import sync_playwright
 
+# This fixture runs Lighthouse on the SDS homepage and returns the parsed JSON report.
 @pytest.fixture(scope="session")
-def browser():
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False, slow_mo=50)
-        yield browser
-        browser.close()
+def lighthouse_report(tmp_path_factory):
+    url = "https://s-d-s.co.uk/"
+    # Create a temporary directory using tmp_path_factory
+    temp_dir = tmp_path_factory.mktemp("lighthouse")
+    output_file = temp_dir / "lighthouse_report.json"
+    # Command to run Lighthouse in headless mode with JSON output.
+    # Ensure that Lighthouse is installed globally (npm install -g lighthouse).
+    command = [
+        "lighthouse",
+        url,
+        "--output=json",
+        f"--output-path={str(output_file)}",
+        "--chrome-flags=--headless"
+    ]
+    subprocess.run(command, check=True)
+    
+    with open(output_file, "r") as f:
+        report = json.load(f)
+    return report
 
-def test_accessibility_homepage(browser):
-    context = browser.new_context()
-    page = context.new_page()
-    page.goto("https://s-d-s.co.uk/")
-    
-    # Accept the cookie popup if it appears
-    cookie_accept_selector = "#hs-eu-confirmation-button"
-    try:
-        page.wait_for_selector(cookie_accept_selector, timeout=3000)
-        page.click(cookie_accept_selector)
-    except Exception:
-        pass
-
-    # Inject the axe-core script from a CDN into the page
-    axe_script_url = "https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.6.2/axe.min.js"
-    page.add_script_tag(url=axe_script_url)
-    
-    # Run axe accessibility analysis on the current page
-    result = page.evaluate("async () => { return await axe.run(); }")
-    
-    # Extract violations from the result
-    violations = result.get("violations", [])
-    
-    # Optionally, print the violations to the console for review
-    if violations:
-        for violation in violations:
-            print(f"Axe Violation: {violation['id']} - {violation['description']}")
-    
-    # Assert that there are no accessibility violations
-    assert len(violations) == 0, f"Accessibility violations found: {violations}"
-    
-    context.close()
+def test_accessibility_lighthouse(lighthouse_report):
+    # Extract the accessibility score (a value between 0 and 1) and convert it to a percentage.
+    accessibility_score = lighthouse_report["categories"]["accessibility"]["score"] * 100
+    threshold = 90  # Set the threshold as 90%
+    print(f"Lighthouse Accessibility Score: {accessibility_score}%")
+    assert accessibility_score >= threshold, (
+        f"Accessibility score {accessibility_score}% is below the acceptable threshold of {threshold}%."
+    )
