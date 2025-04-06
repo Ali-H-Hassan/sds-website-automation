@@ -1,5 +1,6 @@
 import pytest
 from playwright.sync_api import sync_playwright
+from pages.homepage import HomePage
 
 @pytest.fixture(scope="session")
 def playwright_context():
@@ -25,27 +26,20 @@ def test_landval_product_page(page):
       3. Click on the 'Read More' link for the LANDVAL product.
       4. Verify that the URL contains 'landval' and key elements are present.
     """
-    # Open the homepage.
     page.goto("https://s-d-s.co.uk/")
 
-    # Scroll down to the LANDVAL product "Read More" link.
     product_selector = "a:has-text('Read More')"
     page.eval_on_selector(product_selector, "el => el.scrollIntoView({behavior: 'smooth', block: 'center'})")
-
-    # Click on the LANDVAL product "Read More" link.
     page.click(product_selector)
 
-    # Verify that the URL now contains "landval".
     current_url = page.url.lower()
     assert "landval" in current_url, f"Expected URL to contain 'landval', but got {current_url}"
 
-    # Verify key elements on the LANDVAL product page.
     book_demo = page.query_selector("a:has-text('Book a Demo Now')")
     assert book_demo is not None, "Book a Demo Now button not found on the LANDVAL product page"
 
     download_pdf = page.query_selector("a:has-text('Download PDF')")
     assert download_pdf is not None, "Download PDF button not found on the LANDVAL product page"
 
-    # Verify that the new demo section is present.
     demo_section = page.query_selector("div.row-fluid-wrapper.row-depth-1.row-number-21.dnd-section.dnd_area-row-9-padding.dnd_area-row-9-force-full-width-section")
     assert demo_section is not None, "Demo section not found on the LANDVAL product page"

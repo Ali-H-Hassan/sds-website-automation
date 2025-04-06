@@ -1,7 +1,6 @@
 import pytest
 from playwright.sync_api import sync_playwright
 
-# Define the viewports to test following best practices
 VIEWPORTS = [
     {"name": "Desktop", "width": 1280, "height": 800, "is_mobile": False},
     {"name": "Tablet",  "width": 768,  "height": 1024, "is_mobile": True},
@@ -31,7 +30,7 @@ def test_responsive_design(browser, viewport):
         page.wait_for_selector(cookie_accept_selector, timeout=3000)
         page.click(cookie_accept_selector)
         print("Cookie accepted, waiting 1 second...")
-        page.wait_for_timeout(1000)  # wait 1 second (1000 ms)
+        page.wait_for_timeout(1000)  # Wait 1 second (1000 ms)
     except Exception:
         # Cookie popup did not appear, continue with the test.
         pass

@@ -2,7 +2,8 @@ import pytest
 from playwright.sync_api import sync_playwright
 from pages.contact_forms import ContactForms
 
-@pytest.fixture(scope="session")
+# Create a playwright browser context for tests
+@pytest.fixture(autouse=True, scope="session")
 def playwright_context():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False, slow_mo=50)
@@ -11,26 +12,22 @@ def playwright_context():
         context.close()
         browser.close()
 
+# Open a new page for each test
 @pytest.fixture(scope="function")
 def page(playwright_context):
     page = playwright_context.new_page()
     yield page
     page.close()
 
+# Set up the contact form page
 @pytest.fixture
 def contact_form(page):
-    # Navigate to the homepage where the "Get in Touch" form is located.
     page.goto("https://s-d-s.co.uk/")
-    # Use the updated form selector from the page object.
-    contact_form_selector = ContactForms.GET_IN_TOUCH_FORM
-    page.wait_for_selector(contact_form_selector)
+    page.wait_for_selector(ContactForms.GET_IN_TOUCH_FORM)
     return ContactForms(page)
 
+# Positive test: Valid form submission should have no errors
 def test_valid_get_in_touch_form(contact_form, page):
-    """
-    Positive (happy-path) test:
-    Fill in the form with valid data and verify that no error messages are displayed.
-    """
     contact_form.fill_get_in_touch_form(
         first_name="John",
         last_name="Doe",
@@ -39,11 +36,10 @@ def test_valid_get_in_touch_form(contact_form, page):
         company="Acme Corp",
         message="This is a test message."
     )
-    # Skip selecting an enquiry option since it's not required.
-    # Do not submit the form. Verify that no error messages appear.
     errors = page.query_selector_all(".hs-error-msg")
     assert not errors, "Unexpected error messages found on valid form input."
 
+# Negative test: Required field validation for empty fields
 @pytest.mark.parametrize("field, selector", [
     ("first_name", ContactForms.FIRST_NAME),
     ("last_name", ContactForms.LAST_NAME),
@@ -52,10 +48,6 @@ def test_valid_get_in_touch_form(contact_form, page):
     ("company", ContactForms.COMPANY),
 ])
 def test_required_field_validation(field, selector, contact_form, page):
-    """
-    Negative test:
-    Verify that leaving a required field empty shows the required field error.
-    """
     valid_data = {
         "first_name": "John",
         "last_name": "Doe",
@@ -64,8 +56,7 @@ def test_required_field_validation(field, selector, contact_form, page):
         "company": "Acme Corp",
         "message": "Test message."
     }
-    # Leave the specified field empty.
-    valid_data[field] = ""
+    valid_data[field] = ""  # Clear the field under test
     contact_form.fill_get_in_touch_form(
         first_name=valid_data["first_name"],
         last_name=valid_data["last_name"],
@@ -74,17 +65,13 @@ def test_required_field_validation(field, selector, contact_form, page):
         company=valid_data["company"],
         message=valid_data["message"]
     )
-    # Skip selecting an enquiry option.
     contact_form.submit_get_in_touch_form()
     page.wait_for_selector(".hs-error-msg")
     error_text = page.text_content(".hs-error-msg")
     assert "Please complete this required field." in error_text, f"Expected required field error for {field}"
 
+# Negative test: Invalid phone number
 def test_invalid_phone_number(contact_form, page):
-    """
-    Negative test:
-    Fill in an invalid phone number and verify the phone validation error.
-    """
     contact_form.fill_get_in_touch_form(
         first_name="John",
         last_name="Doe",
@@ -93,17 +80,13 @@ def test_invalid_phone_number(contact_form, page):
         company="Acme Corp",
         message="Test message."
     )
-    # Skip selecting an enquiry option.
     contact_form.submit_get_in_touch_form()
     page.wait_for_selector(".hs-error-msg")
     error_text = page.text_content(".hs-error-msg")
     assert "A valid phone number may only contain numbers, +()-. or x" in error_text, "Expected invalid phone number error"
 
+# Negative test: Invalid email address
 def test_invalid_email(contact_form, page):
-    """
-    Negative test:
-    Fill in an invalid email address and verify the email validation error.
-    """
     contact_form.fill_get_in_touch_form(
         first_name="John",
         last_name="Doe",
@@ -112,7 +95,6 @@ def test_invalid_email(contact_form, page):
         company="Acme Corp",
         message="Test message."
     )
-    # Skip selecting an enquiry option.
     contact_form.submit_get_in_touch_form()
     page.wait_for_selector(".hs-error-msg")
     error_text = page.text_content(".hs-error-msg")

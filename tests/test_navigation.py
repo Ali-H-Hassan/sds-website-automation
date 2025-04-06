@@ -34,17 +34,28 @@ def test_navigation_menu(page, nav_item, expected_url_fragment, expected_title):
     home_page = HomePage(page)
     home_page.open_url("https://s-d-s.co.uk/")
     
+    # Accept the cookie popup if it appears (since sometimes it might not show)
+    cookie_accept_selector = "#hs-eu-confirmation-button"
+    try:
+        page.wait_for_selector(cookie_accept_selector, timeout=3000)
+        page.click(cookie_accept_selector)
+        print("Cookie accepted, waiting 1 second...")
+        page.wait_for_timeout(1000)
+    except Exception:
+        # Cookie popup did not appear, continue with the test.
+        pass
+
     # Click the navigation menu item based on its visible text.
     home_page.click_navigation_item_by_text(nav_item)
     
-    # Verify the URL contains the expected fragment.
+    # Verify that the URL contains the expected fragment.
     current_url = page.url.lower()
     assert expected_url_fragment in current_url, (
         f"Navigation for '{nav_item}' did not navigate to a URL containing '{expected_url_fragment}'. "
         f"Current URL: {current_url}"
     )
     
-    # Verify the page title matches the expected title.
+    # Verify that the page title matches the expected title.
     title = home_page.get_title()
     assert title == expected_title, (
         f"Expected title '{expected_title}' for '{nav_item}', but got '{title}'."
